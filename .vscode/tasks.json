@@ -1,0 +1,89 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CMake Configure",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S", "${workspaceFolder}",
+                "-B", "${workspaceFolder}/build",
+                "-DCMAKE_BUILD_TYPE=Debug"
+            ],
+            "problemMatcher": ["$gcc"]
+        },
+
+        {
+            "label": "CMake Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build", "${workspaceFolder}/build",
+                "--config", "Debug"
+            ],
+            "dependsOn": ["CMake Configure"],
+            "problemMatcher": ["$gcc"]
+        },
+
+        {
+            "label": "Upload ELF to OrangePi",
+            "type": "shell",
+            "command": "scp",
+            "args": [
+                "${workspaceFolder}/build/firmware.elf",
+                "root@192.168.31.135:/home/orangepi/object/renode_portable/"
+            ],
+            "dependsOn": ["CMake Build"],
+            "problemMatcher": []
+        },
+
+        {
+            "label": "Upload RESC to OrangePi",
+            "type": "shell",
+            "command": "scp",
+            "args": [
+                "${workspaceFolder}/renode/platform.resc",
+                "root@192.168.31.135:/home/orangepi/object/renode_portable/"
+            ],
+            "problemMatcher": []
+        },
+
+        {
+            "label": "Close Renode Remote",
+            "type": "shell",
+            "command": "ssh",
+            "args": [
+                "root@192.168.31.135",
+                "pkill renode || true"
+            ],
+            "problemMatcher": []
+        },
+
+        {
+            "label": "Run Renode Remote",
+            "type": "shell",
+            "command": "ssh",
+            "args": [
+                "root@192.168.31.135",
+                "/home/orangepi/object/renode_portable/renode /home/orangepi/object/renode_portable/platform.resc"
+            ],
+
+            "dependsOn": [
+                "Upload ELF to OrangePi",
+                "Upload RESC to OrangePi",
+                "Close Renode Remote"
+            ],
+
+            "isBackground": true,
+            "problemMatcher": {
+                "source": "Renode",
+                "pattern": { "regexp": "" },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Renode, version .*",
+                    "endsPattern": ".*GDB server with all CPUs started on port.*"
+                }
+            }
+        }
+    ]
+}

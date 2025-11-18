@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug STM32F4 on Remote Renode",
+            "type": "cppdbg",
+            "request": "launch",
+
+            "program": "${workspaceFolder}/build/firmware.elf",
+            "cwd": "${workspaceFolder}",
+
+            "miDebuggerPath": "arm-none-eabi-gdb",
+            "miDebuggerServerAddress": "192.168.31.135:3333",
+
+            "preLaunchTask": "Run Renode Remote",
+            "postDebugTask": "Close Renode Remote",
+
+            "externalConsole": false
+        }
+    ]
+}

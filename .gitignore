@@ -23,6 +23,5 @@ build.ninja
 *.map
 
 # IDE/editor artifacts
-.vscode/
 *.swp
 .DS_Store
