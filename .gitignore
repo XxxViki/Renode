@@ -1,0 +1,28 @@
+# Build directory
+/build/
+
+# CMake intermediates
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+/Makefile
+cmake-build-*/
+
+# Ninja-generated files
+.ninja_deps
+.ninja_log
+build.ninja
+
+# Compiler outputs
+*.o
+*.d
+*.elf
+*.bin
+*.hex
+*.map
+
+# IDE/editor artifacts
+.vscode/
+*.swp
+.DS_Store

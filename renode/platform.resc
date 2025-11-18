@@ -1,0 +1,29 @@
+using sysbus
+
+# 创建一个 Renode 机器
+mach create "stm32f103"
+
+# 加载官方提供的 STM32F103 平台定义
+include @platforms/cpus/stm32f103.resc
+
+# 加载你的 ELF 文件（路径会由 launch.json 自动传递）
+sysbus LoadELF @build/firmware.elf
+
+# -----------------------
+# UART 终端（推荐 UART2）
+# -----------------------
+# STM32F103 的 UART2 是最常用的 debug UART（PA2/PA3）
+uart2 CreateUartTerminal
+showAnalyzer uart2
+
+# -----------------------
+# 根据需要可配置时钟（可选）
+# -----------------------
+# emulation SetClock 8000000
+# 或者仿真内部 72MHz
+# cpu SetClock 72000000
+
+# -----------------------
+# 开始执行
+# -----------------------
+start
