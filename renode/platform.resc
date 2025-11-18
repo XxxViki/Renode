@@ -2,7 +2,7 @@
 $bin?=@/home/orangepi/object/renode_portable/firmware.elf
 
 # 使用 Renode 自带的 STM32F4 Discovery 平台
-include @scripts/single-node/stm32f4_discovery.resc
+include @scripts/single-node/stm32f103.resc
 
 # 启动 GDB Server，true=GDB连接后自动启动仿真
 machine StartGdbServer 3333 true
