@@ -1,8 +1,18 @@
-# 自动加载 ELF（从 Orange Pi 的 renode_portable 上传过来）
-$bin?=@/home/orangepi/object/renode_portable/firmware.elf
+using sysbus
 
-# 使用 Renode 自带的 STM32F4 Discovery 平台
-include @scripts/single-node/stm32f103.resc
+mach create "stm32f103"
 
-# 启动 GDB Server，true=GDB连接后自动启动仿真
+# 加载硬件平台描述（真正的 STM32F103 平台）
+machine LoadPlatformDescription @platforms/cpus/stm32f103.repl
+
+# 加载你自己的固件
+sysbus LoadELF @/home/orangepi/object/renode_portable/firmware.elf
+
+# 打开 UART2（或 UART1）
+showAnalyzer sysbus.usart2
+# showAnalyzer sysbus.usart1
+
+# 启动 GDB（可选）
 machine StartGdbServer 3333 true
+
+start
