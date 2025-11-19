@@ -1,13 +1,31 @@
 #include <stdint.h>
+#include "task.h"
+#include "list.h"
+#include "port.h"
 
 #define PERIPH_BASE        0x40000000UL
-#define APB1PERIPH_BASE    (PERIPH_BASE + 0x00000)
-#define USART2_BASE        (APB1PERIPH_BASE + 0x4400)
+// #define APB1PERIPH_BASE    (PERIPH_BASE + 0x00000)
+// #define USART2_BASE        (APB1PERIPH_BASE + 0x4400)
 
 #define USART2_SR   (*(volatile uint32_t*)(USART2_BASE + 0x00))
 #define USART2_DR   (*(volatile uint32_t*)(USART2_BASE + 0x04))
 #define USART2_BRR  (*(volatile uint32_t*)(USART2_BASE + 0x08))
 #define USART2_CR1  (*(volatile uint32_t*)(USART2_BASE + 0x0C))
+
+TaskHandle_t Task1_Handle;
+#define TASK1_STACK_SIZE  128
+uint32_t Task1_Stack[TASK1_STACK_SIZE];
+TCB_t Task1_TCB;
+
+TaskHandle_t Task2_Handle;
+#define TASK2_STACK_SIZE  128
+uint32_t Task2_Stack[TASK2_STACK_SIZE];
+TCB_t Task2_TCB;
+
+void delay(uint32_t count);
+void* Task1_Entry(void *pvParameters);
+void* Task2_Entry(void *pvParameters);
+
 
 
 void uart2_init(void)
@@ -32,9 +50,58 @@ void uart2_send_string(const char *s)
     }
 }
 
+
+void delay(uint32_t count)
+{
+    for(volatile uint32_t i = 0; i < count; i++);
+}
+
+void* Task1_Entry(void *pvParameters)
+{
+    while(1)
+    {
+        uart2_send_string("Task 1 is running.\r\n");
+        delay(1000000);
+        portYIELD();
+    }
+}
+
+void* Task2_Entry(void *pvParameters)
+{
+    while(1)
+    {
+        uart2_send_string("Task 2 is running.\r\n");
+        delay(1000000);
+        portYIELD();
+    }
+}
+
+
 int main(void)
 {
     uart2_init();
+
+    prvInitializeTaskLists();
+    Task1_Handle = xTaskCreateStatic(
+        Task1_Entry,
+        "Task1",
+        TASK1_STACK_SIZE,
+        NULL,
+        Task1_Stack,
+        &Task1_TCB
+    );
+    
+    rtosListInsertEnd(&pxReadyTasksLists[0], &Task1_TCB.xStateListItem);
+    Task2_Handle = xTaskCreateStatic(
+        Task2_Entry,
+        "Task2",
+        TASK2_STACK_SIZE,
+        NULL,
+        Task2_Stack,
+        &Task2_TCB
+    );
+    rtosListInsertEnd(&pxReadyTasksLists[1], &Task2_TCB.xStateListItem);
+    xPortStartScheduler();
 
     while(1)
     {
@@ -42,3 +109,6 @@ int main(void)
         for(volatile int i = 0; i < 300000; i++);  // 简单延时
     }
 }
+
+
+

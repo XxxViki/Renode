@@ -8,7 +8,8 @@ set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchain-arm-none-eabi.cmake
 set(CMAKE_C_STANDARD 11)
 
 # Linker/startup paths
-set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/linker/stm32f103.ld)
+# Use the CMSIS provided STM32F103xB linker script instead of a non-existent local copy
+set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/cmsis/Source/Templates/gcc/linker/STM32F103XB_FLASH.ld)
 set(STARTUP_FILE ${CMAKE_SOURCE_DIR}/cmsis/Source/Templates/gcc/startup_stm32f103xb.s)
 set(SYSTEM_FILE ${CMAKE_SOURCE_DIR}/cmsis/Source/Templates/system_stm32f1xx.c)
 
@@ -33,7 +34,9 @@ add_link_options(
 # Include paths
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/rtos
+    ${CMAKE_SOURCE_DIR}/rtos/source
+    ${CMAKE_SOURCE_DIR}/rtos/config
+    ${CMAKE_SOURCE_DIR}/rtos_port
 
     # HAL + CMSIS
     ${CMAKE_SOURCE_DIR}/cmsis/Include
@@ -48,8 +51,9 @@ add_compile_definitions(STM32F103xB)
 # Sources
 file(GLOB SOURCES
     src/*.c
-    rtos/*.c
+    rtos/source/*.c
     drivers/Src/*.c
+    rtos_prot/*.c
 )
 # Exclude HAL timebase template duplicates
 list(FILTER SOURCES EXCLUDE REGEX "stm32f1xx_hal_timebase_.*\\.c$")
