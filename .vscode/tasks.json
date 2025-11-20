@@ -1,6 +1,8 @@
 {
     "version": "2.0.0",
     "tasks": [
+
+        /* === 1. CMake Configure === */
         {
             "label": "CMake Configure",
             "type": "shell",
@@ -13,6 +15,7 @@
             "problemMatcher": ["$gcc"]
         },
 
+        /* === 2. CMake Build === */
         {
             "label": "CMake Build",
             "type": "shell",
@@ -25,8 +28,9 @@
             "problemMatcher": ["$gcc"]
         },
 
+        /* === 3. 上传 ELF === */
         {
-            "label": "Upload ELF to OrangePi",
+            "label": "Upload ELF",
             "type": "shell",
             "command": "scp",
             "args": [
@@ -37,8 +41,9 @@
             "problemMatcher": []
         },
 
+        /* === 4. 上传 RESC === */
         {
-            "label": "Upload RESC to OrangePi",
+            "label": "Upload RESC",
             "type": "shell",
             "command": "scp",
             "args": [
@@ -48,6 +53,7 @@
             "problemMatcher": []
         },
 
+        /* === 5. 关闭旧 Renode 实例 === */
         {
             "label": "Close Renode Remote",
             "type": "shell",
@@ -59,6 +65,7 @@
             "problemMatcher": []
         },
 
+        /* === 6. 启动 Renode Remote（后台任务） === */
         {
             "label": "Run Renode Remote",
             "type": "shell",
@@ -67,21 +74,27 @@
                 "root@192.168.31.135",
                 "/home/orangepi/object/renode_portable/renode /home/orangepi/object/renode_portable/platform.resc"
             ],
-
             "dependsOn": [
-                "Upload ELF to OrangePi",
-                "Upload RESC to OrangePi",
+                "Upload ELF",
+                "Upload RESC",
                 "Close Renode Remote"
             ],
-
             "isBackground": true,
+
             "problemMatcher": {
-                "source": "Renode",
-                "pattern": { "regexp": "" },
+                "owner": "Renode",
+                "pattern": [
+                    {
+                        "regexp": "^(?!.*)",
+                        "file": 0,
+                        "line": 0,
+                        "message": 0
+                    }
+                ],
                 "background": {
                     "activeOnStart": true,
                     "beginsPattern": "Renode, version .*",
-                    "endsPattern": ".*GDB server with all CPUs started on port.*"
+                    "endsPattern": ".*Loaded SVD.*"
                 }
             }
         }

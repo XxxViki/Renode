@@ -1,18 +1,13 @@
 using sysbus
 
 mach create "stm32f103"
-
-# 加载硬件平台描述（真正的 STM32F103 平台）
 machine LoadPlatformDescription @platforms/cpus/stm32f103.repl
-
-# 加载你自己的固件
 sysbus LoadELF @/home/orangepi/object/renode_portable/firmware.elf
 
-# 打开 UART2（或 UART1）
 showAnalyzer sysbus.usart2
-# showAnalyzer sysbus.usart1
 
-# 启动 GDB（可选）
+# Start GDB server
 machine StartGdbServer 3333 true
-
 start
+
+# Monitor socket disabled to avoid port conflicts

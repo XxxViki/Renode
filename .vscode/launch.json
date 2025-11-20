@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug STM32F4 on Remote Renode",
+            "name": "Debug STM32F103 on Renode Remote",
             "type": "cppdbg",
             "request": "launch",
 
@@ -13,9 +13,18 @@
             "miDebuggerServerAddress": "192.168.31.135:3333",
 
             "preLaunchTask": "Run Renode Remote",
-            "postDebugTask": "Close Renode Remote",
 
-            "externalConsole": false
+            "stopAtEntry": true,
+
+            "setupCommands": [
+                { "text": "set pagination off" },
+                { "text": "set confirm off" },
+                { "text": "set print pretty on" }
+            ],
+
+            "externalConsole": false,
+
+            "targetArchitecture": "arm"
         }
     ]
 }
