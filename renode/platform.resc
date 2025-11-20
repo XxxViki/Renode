@@ -10,4 +10,9 @@ showAnalyzer sysbus.usart2
 machine StartGdbServer 3333 true
 start
 
-# Monitor socket disabled to avoid port conflicts
+# Register reset macro so `machine Reset` works
+macro stm32f103.reset
+"""
+sysbus LoadELF @/home/orangepi/object/renode_portable/firmware.elf
+cpu Reset
+"""

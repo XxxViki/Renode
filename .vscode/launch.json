@@ -22,6 +22,13 @@
                 { "text": "set print pretty on" }
             ],
 
+            /* On restart: pause, reload ELF, reset CPU (mimic your manual sequence) */
+            "postRemoteConnectCommands": [
+                { "text": "monitor machine Pause" },
+                { "text": "monitor sysbus LoadELF @/home/orangepi/object/renode_portable/firmware.elf" },
+                { "text": "monitor cpu Reset" }
+            ],
+
             "externalConsole": false,
 
             "targetArchitecture": "arm"
