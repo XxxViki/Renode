@@ -4,8 +4,8 @@
 #include "port.h"
 
 #define PERIPH_BASE        0x40000000UL
-// #define APB1PERIPH_BASE    (PERIPH_BASE + 0x00000)
-// #define USART2_BASE        (APB1PERIPH_BASE + 0x4400)
+#define APB1PERIPH_BASE    (PERIPH_BASE + 0x00000)
+#define USART2_BASE        (APB1PERIPH_BASE + 0x4400)
 
 #define USART2_SR   (*(volatile uint32_t*)(USART2_BASE + 0x00))
 #define USART2_DR   (*(volatile uint32_t*)(USART2_BASE + 0x04))

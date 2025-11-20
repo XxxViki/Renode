@@ -1,14 +1,16 @@
 #ifndef __PORT_H__
 #define __PORT_H__
 #include "task.h"
-#include "stm32f1xx.h"
 
+#ifndef configKERNEL_INTERRUPT_PRIORITY
+#define configKERNEL_INTERRUPT_PRIORITY 0x0F
+#endif
 
 #define portINITIAL_XPSR    (0x01000000UL)    /* 初始xPSR寄存器值 */
 #define portSTART_ADDRESS_MASK    (0xfffffffeUL)    /* 任务入口地址对齐掩码 */
 #define portNVIC_SYSPRI2_REG    ( *( ( volatile uint32_t * ) 0xe000ed20 ) )
-#define portNVIC_PENDSV_PRI    ( ( ( uint32_t ) configKERNEL_INTERRUPT_PRIORITY ) << 16UL )
-#define portNVIC_SYSTICK_PRI    ( ( ( uint32_t ) configKERNEL_INTERRUPT_PRIORITY ) << 24UL )
+#define portNVIC_PENDSV_PRI    ( ( ( uint32_t ) 0x0F ) << 16UL )
+#define portNVIC_SYSTICK_PRI    ( ( ( uint32_t ) 0x0F ) << 24UL )
 
 
 

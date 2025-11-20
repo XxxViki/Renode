@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(MyRtosF103 C ASM)
-
-# Cross compile using ARM toolchain
+# Cross compile using ARM toolchain (must be set before project)
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchain-arm-none-eabi.cmake)
+
+project(MyRtosF103 C ASM)
 
 set(CMAKE_C_STANDARD 11)
 
@@ -36,7 +36,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/rtos/source
     ${CMAKE_SOURCE_DIR}/rtos/config
-    ${CMAKE_SOURCE_DIR}/rtos_port
+    ${CMAKE_SOURCE_DIR}/rtos_port/
 
     # HAL + CMSIS
     ${CMAKE_SOURCE_DIR}/cmsis/Include
@@ -53,7 +53,7 @@ file(GLOB SOURCES
     src/*.c
     rtos/source/*.c
     drivers/Src/*.c
-    rtos_prot/*.c
+    rtos_port/*.c
 )
 # Exclude HAL timebase template duplicates
 list(FILTER SOURCES EXCLUDE REGEX "stm32f1xx_hal_timebase_.*\\.c$")
