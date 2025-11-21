@@ -86,7 +86,7 @@ __attribute__((naked)) void vPortSVCHandler(void)
     __asm__ volatile("ldr r1, [r3]");
     __asm__ volatile("ldr r0, [r1]");         // top of stack
     __asm__ volatile("ldmia r0!, {r4-r11}");
-    __asm__ volatile("msr msp, r0");
+    __asm__ volatile("msr psp, r0");
     __asm__ volatile("isb");
     __asm__ volatile("mov r0, #0");
     __asm__ volatile("msr basepri, r0");

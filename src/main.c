@@ -101,6 +101,7 @@ int main(void)
         &Task2_TCB
     );
     rtosListInsertEnd(&pxReadyTasksLists[1], &Task2_TCB.xStateListItem);
+    pxCurrentTCB = &Task2_TCB;
     xPortStartScheduler();
 
     while(1)
