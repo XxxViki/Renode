@@ -1,9 +1,3 @@
 [submodule "rtos"]
 	path = rtos
 	url = git@github.com:11cookies11/Rtos.git
-[submodule "drivers"]
-	path = drivers
-	url = git@github.com:STMicroelectronics/stm32f1xx-hal-driver.git
-[submodule "cmsis"]
-	path = cmsis
-	url = git@github.com:STMicroelectronics/cmsis-device-f1.git
