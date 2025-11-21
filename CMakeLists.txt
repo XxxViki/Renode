@@ -1,69 +1,85 @@
 cmake_minimum_required(VERSION 3.15)
 
-# Cross compile using ARM toolchain (must be set before project)
+# -----------------------------
+# Toolchain
+# -----------------------------
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchain-arm-none-eabi.cmake)
 
-project(MyRtosF103 C ASM)
-
+project(MyRtosF412 C ASM)
 set(CMAKE_C_STANDARD 11)
 
-# Linker/startup paths
-# Use the CMSIS provided STM32F103xB linker script instead of a non-existent local copy
-set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/cmsis/Source/Templates/gcc/linker/STM32F103XB_FLASH.ld)
-set(STARTUP_FILE ${CMAKE_SOURCE_DIR}/cmsis/Source/Templates/gcc/startup_stm32f103xb.s)
-set(SYSTEM_FILE ${CMAKE_SOURCE_DIR}/cmsis/Source/Templates/system_stm32f1xx.c)
+# -----------------------------
+# Device / CPU Defines
+# -----------------------------
+set(TARGET_CPU cortex-m4)
 
-# Compile options
+add_compile_definitions(
+    STM32F412Zx            # Device macro（启用正确的寄存器定义）
+    USE_FULL_LL_DRIVER     # 如果你使用 LL 或裸寄存器，也可以不写
+)
+
+# -----------------------------
+# CMSIS Startup + System + Linker
+# -----------------------------
+set(STARTUP_FILE ${CMAKE_SOURCE_DIR}/drivers/Projects/STM32F412ZG-Nucleo/Templates/STM32CubeIDE/Example/Startup/startup_stm32f412zgjx.s)
+set(SYSTEM_FILE  ${CMAKE_SOURCE_DIR}/cmsis/Source/Templates/system_stm32f4xx.c)
+set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/drivers/Projects/STM32F412ZG-Nucleo/Templates/STM32CubeIDE/STM32F412ZGJX_FLASH.ld)
+
+# -----------------------------
+# Compiler Flags
+# -----------------------------
 add_compile_options(
-    -mcpu=cortex-m3
+    -mcpu=${TARGET_CPU}
     -mthumb
     -O0
     -g3
+    -Wall
+    -fdata-sections
+    -ffunction-sections
 )
 
+# -----------------------------
+# Linker Flags
+# -----------------------------
 add_link_options(
     -T${LINKER_SCRIPT}
+    -mcpu=${TARGET_CPU}
+    -mthumb
     -nostartfiles
     -Wl,--gc-sections
-    -mcpu=cortex-m3
-    -mthumb
     -specs=nosys.specs
     -specs=nano.specs
 )
 
-# Include paths
+# -----------------------------
+# Includes（最小化）
+# -----------------------------
 include_directories(
-    ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/rtos/source
-    ${CMAKE_SOURCE_DIR}/rtos/config
-    ${CMAKE_SOURCE_DIR}/rtos_port/
-
-    # HAL + CMSIS
-    ${CMAKE_SOURCE_DIR}/cmsis/Include
-    ${CMAKE_SOURCE_DIR}/cmsis/Core/Include
-    ${CMAKE_SOURCE_DIR}/drivers/Inc
-    ${CMAKE_SOURCE_DIR}/drivers/Inc/Legacy
+    src
+    rtos/source
+    rtos/config
+    rtos_port
+ 
+    drivers/Drivers/CMSIS/Core/Include  # core_cm4.h
+    cmsis/Include           # stm32f412xx.h
 )
 
-# Select target device
-add_compile_definitions(STM32F103xB)
-
-# Sources
+# -----------------------------
+# Source Files
+# -----------------------------
 file(GLOB SOURCES
     src/*.c
     rtos/source/*.c
-    drivers/Src/*.c
     rtos_port/*.c
 )
-# Exclude HAL timebase template duplicates
-list(FILTER SOURCES EXCLUDE REGEX "stm32f1xx_hal_timebase_.*\\.c$")
+
+# 添加 CMSIS 启动/系统文件
 list(APPEND SOURCES
     ${SYSTEM_FILE}
     ${STARTUP_FILE}
 )
 
-add_executable(firmware.elf
-    ${SOURCES}
-)
-
-target_link_options(firmware.elf PRIVATE -T${LINKER_SCRIPT} -nostartfiles -Wl,--gc-sections)
+# -----------------------------
+# Final binary
+# -----------------------------
+add_executable(firmware.elf ${SOURCES})

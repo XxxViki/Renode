@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug STM32F103 on Renode Remote",
+            "name": "Debug STM32F412 on Renode Remote",
             "type": "cppdbg",
             "request": "launch",
 

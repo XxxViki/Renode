@@ -1,18 +1,40 @@
 using sysbus
 
-mach create "stm32f103"
-machine LoadPlatformDescription @platforms/cpus/stm32f103.repl
+# ---------------------------------------------------------
+# Create machine
+# ---------------------------------------------------------
+mach create "stm32f412"
+
+# ---------------------------------------------------------
+# Load STM32F4 platform (Renode 官方)
+# ---------------------------------------------------------
+machine LoadPlatformDescription @platforms/cpus/stm32f4.repl
+
+# ---------------------------------------------------------
+# Load ELF file
+# ---------------------------------------------------------
 sysbus LoadELF @/home/orangepi/object/renode_portable/firmware.elf
 
+# ---------------------------------------------------------
+# Show UART2 for printf / logs
+# ---------------------------------------------------------
 showAnalyzer sysbus.usart2
 
-# Start GDB server
+# ---------------------------------------------------------
+# Start GDB server (用于 VSCode)
+# ---------------------------------------------------------
 machine StartGdbServer 3333 true
+
+# ---------------------------------------------------------
+# Start emulation
+# ---------------------------------------------------------
 start
 
-# Register reset macro so `machine Reset` works
-macro stm32f103.reset
+# ---------------------------------------------------------
+# Reset macro（VSCode restart 时调用）
+# ---------------------------------------------------------
+macro stm32f412.reset
 """
-sysbus LoadELF @/home/orangepi/object/renode_portable/firmware.elf
-cpu Reset
+    sysbus LoadELF @/home/orangepi/object/renode_portable/firmware.elf
+    cpu Reset
 """
