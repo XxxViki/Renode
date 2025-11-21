@@ -122,3 +122,29 @@ __attribute__((naked)) void vPortPendSVHandler(void)
     __asm__ volatile("bx r14");
     __asm__ volatile("nop");
 }
+
+
+void vPortRaiseBASEPRI(void)
+{
+    uint32_t ulNewBASEPRI = configKERNEL_INTERRUPT_PRIORITY;
+    __asm__ volatile("msr basepri, ulNewBASEPRI");
+    __asm__ volatile("dsb");
+    __asm__ volatile("dsb");
+}
+
+
+uint32_t ulPortRaiseBASEPRI(void)
+{
+    uint32_t ulReturn, ulNewBASEPRI = configKERNEL_INTERRUPT_PRIORITY;
+    __asm__ volatile("mrs ulReturn, basepri");
+    __asm__ volatile("msr basepri, ulNewBASEPRI");
+    __asm__ volatile("dsb");
+    __asm__ volatile("isb");
+    return ulReturn;
+}
+
+
+void portENABLE_INTERRUPTS(uint32_t ulBASEPRI)
+{
+    __asm__ volatile("msr basepri, ulBASEPRI");
+}
