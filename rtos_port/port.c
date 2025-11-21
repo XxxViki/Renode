@@ -1,8 +1,8 @@
 // Cortex-M3 port glue: first-task startup and context switch handlers.
 #include "port.h"
 
-extern void vPortSVCHandler(void);
-extern void vPortPendSVHandler(void);
+void vPortSVCHandler(void);
+void vPortPendSVHandler(void);
 
 void SVC_Handler(void) __attribute__((alias("vPortSVCHandler")));
 void PendSV_Handler(void) __attribute__((alias("vPortPendSVHandler")));
