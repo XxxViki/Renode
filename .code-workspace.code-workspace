@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"name": "Renode Outputs",
+			"uri": "renodehyp:/"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"stdint.h": "c",
+			"stm32f1xx_hal.h": "c",
+			"stdio.h": "c",
+			"projdefs.h": "c",
+			"port.h": "c",
+			"task.h": "c"
+		}
+	}
+}
