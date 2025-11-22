@@ -10,6 +10,8 @@ void PendSV_Handler(void) __attribute__((alias("vPortPendSVHandler")));
 static void prvStartFirstTask(void);
 static void prvTaskExitError(void);
 
+static uint32_t uxCriticalNesting = 0xaaaaaaaa;
+
 static void prvTaskExitError(void)
 {
     for (;;)
@@ -144,7 +146,31 @@ uint32_t ulPortRaiseBASEPRI(void)
 }
 
 
-void portENABLE_INTERRUPTS(uint32_t ulBASEPRI)
+void vPortSetBASEPRI(uint32_t ulBASEPRI)
 {
     __asm__ volatile("msr basepri, ulBASEPRI");
+}
+
+
+
+void vPortEnterCritical(void)
+{
+    portDISABLE_INTERRUPTS();
+    uxCriticalNesting++;
+
+    if( uxCriticalNesting == 1)
+    {
+        configASSERT((portNVIC_INT_CTRL_REG & portVECTACTIVE_MASK   ) == 0);
+    }
+}
+
+
+void vPortExitCritical(void)
+{
+    configASSERT(uxCriticalNesting);
+    uxCriticalNesting--;
+    if(uxCriticalNesting == 0)
+    {
+        portENABLE_INTERRUPTS();
+    }
 }

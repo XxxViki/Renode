@@ -1,6 +1,8 @@
 #ifndef __PORT_H__
 #define __PORT_H__
 #include "task.h"
+#include "projdefs.h"
+#include "config.h"
 
 #ifndef configKERNEL_INTERRUPT_PRIORITY
 #define configKERNEL_INTERRUPT_PRIORITY 0x0F
