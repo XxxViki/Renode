@@ -6,6 +6,8 @@ void vPortPendSVHandler(void);
 
 void SVC_Handler(void) __attribute__((alias("vPortSVCHandler")));
 void PendSV_Handler(void) __attribute__((alias("vPortPendSVHandler")));
+void SysTick_Handler(void) __attribute__((alias("xPortSysTickHandler")));
+
 
 static void prvStartFirstTask(void);
 static void prvTaskExitError(void);

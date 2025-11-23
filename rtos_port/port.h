@@ -47,7 +47,7 @@
 #endif
 
 #define portNVIC_SYSTICK_INT_BIT        (1UL << 1UL)
-#define portNVIC_SYSTICK_ENABLE_BIT     (1UL << 1UL)
+#define portNVIC_SYSTICK_ENABLE_BIT     (1UL << 0UL)
 
 
 extern TCB_t Task1_TCB;
