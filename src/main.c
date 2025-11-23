@@ -15,12 +15,20 @@
 TaskHandle_t Task1_Handle;
 #define TASK1_STACK_SIZE  128
 uint32_t Task1_Stack[TASK1_STACK_SIZE];
-TCB_t Task1_TCB;
 
+TCB_t Task1_TCB;
 TaskHandle_t Task2_Handle;
 #define TASK2_STACK_SIZE  128
 uint32_t Task2_Stack[TASK2_STACK_SIZE];
 TCB_t Task2_TCB;
+
+
+TaskHandle_t Task_IDE_Handle;
+#define TASK_IDE_STACK_SIZE 128
+uint32_t Task_IDE_Stack[TASK_IDE_STACK_SIZE];
+TCB_t Task_IDE_TCB;
+
+
 
 void delay(uint32_t count);
 void* Task1_Entry(void *pvParameters);
@@ -60,9 +68,14 @@ void* Task1_Entry(void *pvParameters)
 {
     while(1)
     {
+#if 0
         uart2_send_string("Task 1 is running.\r\n");
         delay(1000000);
         portYIELD();
+#endif
+        vTaskDelay(20);
+        uart2_send_string("Task 1 is running.\r\n");
+        vTaskDelay(20);
     }
 }
 
@@ -70,9 +83,23 @@ void* Task2_Entry(void *pvParameters)
 {
     while(1)
     {
+#if 0        
         uart2_send_string("Task 2 is running.\r\n");
         delay(1000000);
         portYIELD();
+#endif
+        vTaskDelay(200);
+        uart2_send_string("Task 2 is running.\r\n");
+        vTaskDelay(200);
+    }
+}
+
+
+void* Task_IDE_Entry(void *pvParameters)
+{
+    while(1)
+    {
+        
     }
 }
 
@@ -101,6 +128,25 @@ int main(void)
         &Task2_TCB
     );
     rtosListInsertEnd(&pxReadyTasksLists[1], &Task2_TCB.xStateListItem);
+
+    TCB_t *pxIdleTaskTCBBuffer = NULL; /* 用于指向空闲任务控制块 */
+    uint32_t *pxIdleTaskStackBuffer = NULL; /* 用于空闲任务栈起始地址 */
+    uint32_t ulIdleTaskStackSize;
+
+    // vApplicationGetIdleTaskMemory( &pxIdleTaskTCBBuffer,
+    //                                 &pxIdleTaskStackBuffer,
+    //                                 &ulIdleTaskStackSize );
+
+    Task_IDE_Handle = xTaskCreateStatic(
+        Task_IDE_Entry,
+        "Task_IDE",
+        TASK_IDE_STACK_SIZE,
+        NULL,
+        Task_IDE_Stack,
+        &Task_IDE_TCB
+    );
+
+    rtosListInsertEnd(&pxReadyTasksLists[0],&Task_IDE_TCB.xStateListItem);
     pxCurrentTCB = &Task2_TCB;
     xPortStartScheduler();
 
@@ -110,6 +156,17 @@ int main(void)
         for(volatile int i = 0; i < 300000; i++);  // 简单延时
     }
 }
+
+
+// void vApplicationGetIdleTaskMemory(TCB_t **ppxIdleTaskTCBBuffer,
+//                                     uint32_t **ppxIdleTaskStackBuffer,
+//                                     uint32_t *pulIdleTaskStackSize)
+// {
+//     **ppxIdleTaskTCBBuffer = &Task_IDE_TCB;
+//     **ppxIdleTaskStackBuffer = &Task_IDE_Stack;
+//     *pulIdleTaskStackSize = TASK_IDE_STACK_SIZE;
+// }
+
 
 
 

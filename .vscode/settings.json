@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "port.h": "c"
+        "port.h": "c",
+        "task.h": "c",
+        "projdefs.h": "c",
+        "stdio.h": "c"
     }
 }

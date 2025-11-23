@@ -16,6 +16,7 @@
 
 
 
+
 #define taskYIELD()                portYIELD()
 #define portNVIC_INT_CTRL_REG    ( *( ( volatile uint32_t * ) 0xe000ed04 ) )
 #define portNVIC_PENDSVSET_BIT    ( 1UL << 28UL )
@@ -30,7 +31,27 @@
     }
 
 
+    
+    
+#define portNVIC_SYSTICK_CTRL_REG      (*((volatile uint32_t *) 0xe000e010))
+
+
+#define portNVIC_SYSTICK_LOAD_REG      (*((volatile uint32_t *) 0xe000e014))
+
+
+#ifndef configSYSTICK_CLOCK_HZ
+#define configSYSTICK_CLOCK_HZ configCPU_CLOCK_HZ
+#define portNVIC_SYSTICK_CLK_BIT    (1UL << 2UL)
+#else
+#define portNVIC_SYSTICK_CLK_BIT    (0)
+#endif
+
+#define portNVIC_SYSTICK_INT_BIT        (1UL << 1UL)
+#define portNVIC_SYSTICK_ENABLE_BIT     (1UL << 1UL)
+
+
 extern TCB_t Task1_TCB;
 extern TCB_t Task2_TCB;
+extern TCB_t Task_IDE_TCB;
 
 #endif /* __PORT_H__ */
