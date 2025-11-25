@@ -12,7 +12,7 @@ void SysTick_Handler(void) __attribute__((alias("xPortSysTickHandler")));
 static void prvStartFirstTask(void);
 static void prvTaskExitError(void);
 
-static uint32_t uxCriticalNesting = 0xaaaaaaaa;
+uint32_t uxCriticalNesting = 0xaaaaaaaa;
 uint32_t xTickCount = 0;
 
 static void prvTaskExitError(void)
@@ -217,6 +217,8 @@ void vPortRaiseBASEPRI(void)
 }
 
 
+
+
 uint32_t ulPortRaiseBASEPRI(void)
 {
     uint32_t ulReturn, ulNewBASEPRI = configKERNEL_INTERRUPT_PRIORITY;
@@ -315,11 +317,13 @@ void xTaskIncrementTick(void)
 
 void xPortSysTickHandler(void)
 {
-//    vPortRaiseBASEPRI();
+    uint32_t old_mask;
+
+    old_mask = taskENTER_CRITICAL_FROM_ISR();
 
     xTaskIncrementTick();
 
-//    taskENTER_CRITICAL_FROM_ISR();
+    taskEXIT_CRITICAL_FROM_ISR(old_mask);
 
     //临时存放
     portYIELD();

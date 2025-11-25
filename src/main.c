@@ -146,6 +146,8 @@ void vTaskStartScheduler(void)
     uint32_t *pxIdleTaskStackBuffer = NULL;
     uint32_t ulIdleTaskStackSize;
 
+    uxCriticalNesting = 0;
+
     vApplicationGetIdleTaskMemory( &pxIdleTaskTCBBuffer,
                                     &pxIdleTaskStackBuffer,
                                     &ulIdleTaskStackSize );

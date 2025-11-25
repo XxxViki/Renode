@@ -10,5 +10,6 @@
 extern TCB_t Task1_TCB;
 extern TCB_t Task2_TCB;
 extern TCB_t Task_IDE_TCB;
+extern uint32_t uxCriticalNesting;
 
 #endif /* __PORT_H__ */
