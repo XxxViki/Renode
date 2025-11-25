@@ -295,15 +295,18 @@ void xTaskIncrementTick(void)
 
     for (uint32_t i = 0; i < configMAX_PRIORITIES; i++)
     {
-        /* code */
-        pxTCB = (TCB_t*) listGET_OWNER_OF_HEAD_ENTRY((&pxReadyTasksLists[i]));
-        if (pxTCB->xTicksToDelay > 0)
+        if(!listLIST_IS_EMPTY(&pxReadyTasksLists[i]))
         {
             /* code */
-            pxTCB->xTicksToDelay--;
-            if(pxTCB->xTicksToDelay == 0)
+            pxTCB = (TCB_t*) listGET_OWNER_OF_HEAD_ENTRY((&pxReadyTasksLists[i]));
+            if (pxTCB->xTicksToDelay > 0)
             {
-                portRECORD_READY_PRIORITY(pxTCB->uxPriority,uxTopReadyPriority);
+                /* code */
+                pxTCB->xTicksToDelay--;
+                if(pxTCB->xTicksToDelay == 0)
+                {
+                    portRECORD_READY_PRIORITY(pxTCB->uxPriority,uxTopReadyPriority);
+                }
             }
         }
     }
