@@ -3,6 +3,7 @@
         "port.h": "c",
         "task.h": "c",
         "projdefs.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "config.h": "c"
     }
 }

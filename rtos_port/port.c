@@ -65,6 +65,8 @@ void xPortStartScheduler(void)
 
 void vTaskSwitchContext(void)
 {
+    taskSELECT_HIGHEST_PRIORITY_TASK();
+#if 0
     if(pxCurrentTCB == &Task_IDE_TCB)
     {
         if(Task1_TCB.xTicksToDelay == 0)
@@ -114,7 +116,7 @@ void vTaskSwitchContext(void)
         }
     }
 
-
+#endif
 
 
 
@@ -277,6 +279,8 @@ void vTaskDelay(const uint32_t xTicksToDelay)
 
     pxTCB->xTicksToDelay = xTicksToDelay;
 
+    taskRESET_READY_PRIORITY(pxTCB->uxPriority);
+
     taskYIELD();
 }
 
@@ -297,18 +301,24 @@ void xTaskIncrementTick(void)
         {
             /* code */
             pxTCB->xTicksToDelay--;
+            if(pxTCB->xTicksToDelay == 0)
+            {
+                portRECORD_READY_PRIORITY(pxTCB->uxPriority,uxTopReadyPriority);
+            }
         }
     }
 
-    portYIELD();
 }
 
 void xPortSysTickHandler(void)
 {
-    vPortRaiseBASEPRI();
+//    vPortRaiseBASEPRI();
 
     xTaskIncrementTick();
 
-    taskENTER_CRITICAL_FROM_ISR();
+//    taskENTER_CRITICAL_FROM_ISR();
+
+    //临时存放
+    portYIELD();
 }
 
