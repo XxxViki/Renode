@@ -102,7 +102,7 @@ int main(void)
         &Task1_TCB
     );
     
-    // rtosListInsertEnd(&pxReadyTasksLists[0], &Task1_TCB.xStateListItem);
+    // vListInsertEnd(&pxReadyTasksLists[0], &Task1_TCB.xStateListItem);
     Task2_Handle = xTaskCreateStatic(
         Task2_Entry,
         "Task2",
@@ -112,7 +112,7 @@ int main(void)
         Task2_Stack,
         &Task2_TCB
     );
-    // rtosListInsertEnd(&pxReadyTasksLists[1], &Task2_TCB.xStateListItem);
+    // vListInsertEnd(&pxReadyTasksLists[1], &Task2_TCB.xStateListItem);
     
 
     pxCurrentTCB = &Task2_TCB;
