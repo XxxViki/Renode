@@ -91,7 +91,7 @@ int main(void)
 {
     uart2_init();
 
-    prvInitializeTaskLists();
+    prvInitialiseTaskLists();
     Task1_Handle = xTaskCreateStatic(
         Task1_Entry,
         "Task1",
@@ -102,7 +102,7 @@ int main(void)
         &Task1_TCB
     );
     
-    // vListInsertEnd(&pxReadyTasksLists[0], &Task1_TCB.xStateListItem);
+
     Task2_Handle = xTaskCreateStatic(
         Task2_Entry,
         "Task2",
@@ -112,7 +112,6 @@ int main(void)
         Task2_Stack,
         &Task2_TCB
     );
-    // vListInsertEnd(&pxReadyTasksLists[1], &Task2_TCB.xStateListItem);
     
 
     pxCurrentTCB = &Task2_TCB;
