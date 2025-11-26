@@ -4,6 +4,7 @@
         "task.h": "c",
         "projdefs.h": "c",
         "stdio.h": "c",
-        "config.h": "c"
+        "config.h": "c",
+        "list.h": "c"
     }
 }

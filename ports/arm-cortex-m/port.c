@@ -11,9 +11,20 @@ void SysTick_Handler(void) __attribute__((alias("xPortSysTickHandler")));
 
 static void prvStartFirstTask(void);
 static void prvTaskExitError(void);
+static void prvResetNextTaskUnblockTime(void);
 
-uint32_t uxCriticalNesting = 0xaaaaaaaa;
-uint32_t xTickCount = 0;
+#ifndef __NVIC_PRIO_BITS
+#define __NVIC_PRIO_BITS 4
+#endif
+
+static inline uint32_t prvCalcBASEPRI(void)
+{
+    /* Align BASEPRI to implemented priority bits (e.g., 4 bits on Cortex-M4). */
+    const uint32_t shift = (uint32_t)(8U - __NVIC_PRIO_BITS);
+    return (configKERNEL_INTERRUPT_PRIORITY << shift) & 0xFFU;
+}
+
+
 
 static void prvTaskExitError(void)
 {
@@ -201,41 +212,30 @@ __attribute__((naked)) void vPortPendSVHandler(void)
 
 void vPortRaiseBASEPRI(void)
 {
-// configKERNEL_INTERRUPT_PRIORITY 是輸入變數，用於設置 BASEPRI 的值。
-    uint32_t ulNewBASEPRI = configKERNEL_INTERRUPT_PRIORITY; 
-    
-    __asm volatile
-    (
-        // MSR 指令：將通用寄存器中的值寫入特殊寄存器 BASEPRI
-        "   msr basepri, %0     \n"   // %0 會被替換為 ulNewBASEPRI 所在的寄存器
-        "   dsb                 \n"   // 數據同步屏障，確保 MSR 完成
-        "   isb                 \n"   // 指令同步屏障，刷新流水線
-        : // 無輸出 (No output)
-        : "r" (ulNewBASEPRI)           // 輸入約束："r" 表示將 ulNewBASEPRI 放入通用寄存器
-        : "memory"                     // 破壞列表：通知編譯器內存可能被修改
-    );
+    uint32_t ulNewBASEPRI = prvCalcBASEPRI();
+
+    __asm volatile(
+        "msr basepri, %0\n"
+        "dsb\n"
+        "isb\n"
+        :
+        : "r" (ulNewBASEPRI)
+        : "memory");
 }
-
-
-
 
 uint32_t ulPortRaiseBASEPRI(void)
 {
-    uint32_t ulReturn, ulNewBASEPRI = configKERNEL_INTERRUPT_PRIORITY;
-    __asm volatile
-        (
-            "   mrs %0, basepri     \n"   // %0: 讀取舊的 BASEPRI 值到 ulReturn
-            "   msr basepri, %1     \n"   // %1: 將 ulNewBASEPRI 寫入 BASEPRI
-            "   dsb                 \n"   // 數據同步屏障
-            "   isb                 \n"   // 指令同步屏障
-            : "=r" (ulReturn)              // 輸出約束：ulReturn 存儲在通用寄存器中
-            : "r" (ulNewBASEPRI)           // 輸入約束：ulNewBASEPRI 存儲在通用寄存器中
-            : "memory"                     // 破壞列表（clobber list）
-        );
+    uint32_t ulReturn, ulNewBASEPRI = prvCalcBASEPRI();
+    __asm volatile(
+            "mrs %0, basepri\n"
+            "msr basepri, %1\n"
+            "dsb\n"
+            "isb\n"
+            : "=r" (ulReturn)
+            : "r" (ulNewBASEPRI)
+            : "memory");
     return ulReturn;
 }
-
-
 void vPortSetBASEPRI(uint32_t ulBASEPRI)
 {
     __asm__ volatile (
@@ -271,30 +271,64 @@ void vPortExitCritical(void)
 }
 
 
-
-
-void vTaskDelay(const uint32_t xTicksToDelay)
+static void prvResetNextTaskUnblockTime(void)
 {
-    TCB_t *pxTCB = NULL;
-
-    pxTCB = pxCurrentTCB;
-
-    pxTCB->xTicksToDelay = xTicksToDelay;
-
-    taskRESET_READY_PRIORITY(pxTCB->uxPriority);
-
-    taskYIELD();
+    TCB_t *pxTCB;
+    if(listLIST_IS_EMPTY(pxDelayedTaskList) != pdFALSE)
+    {
+        xNextTaskUnblockTime = configMAX_DELAY;
+    }
+    else
+    {
+        (pxTCB) = (TCB_t*)listGET_OWNER_OF_HEAD_ENTRY(pxDelayedTaskList);
+        xNextTaskUnblockTime = listGET_LIST_ITEM_VALUE(&(pxTCB->xStateListItem));
+    }
 }
+
+
+
+
 
 
 void xTaskIncrementTick(void)
 {
     TCB_t *pxTCB = NULL;
+    uint32_t xItemValue;
     
     const uint32_t xConstTickCount = xTickCount + 1;
     xTickCount = xConstTickCount;
 
+    if(xConstTickCount == (uint32_t) 0U)
+    {
+        taskSWITCH_DELAYED_LISTS();
+    }
 
+    if(xConstTickCount >= xNextTaskUnblockTime)
+    {
+        for(;;)
+        {
+            if(listLIST_IS_EMPTY(pxDelayedTaskList) != pdFALSE)
+            {
+                xNextTaskUnblockTime = configMAX_DELAY;
+                break;
+            }
+            else
+            {
+                pxTCB = (TCB_t *)listGET_OWNER_OF_HEAD_ENTRY(pxDelayedTaskList);
+                xItemValue = listGET_LIST_ITEM_VALUE(&(pxTCB->xStateListItem));
+
+                if(xConstTickCount < xItemValue)
+                {
+                    xNextTaskUnblockTime = xItemValue;
+                    break;
+                }
+
+                (void)uxListRemove(&(pxTCB->xStateListItem));
+                prvAddTaskToReadyList(pxTCB);
+            }
+        }
+    }
+#if 0
     for (uint32_t i = 0; i < configMAX_PRIORITIES; i++)
     {
         if(!listLIST_IS_EMPTY(&pxReadyTasksLists[i]))
@@ -312,7 +346,7 @@ void xTaskIncrementTick(void)
             }
         }
     }
-
+#endif
 }
 
 void xPortSysTickHandler(void)
@@ -328,4 +362,34 @@ void xPortSysTickHandler(void)
     //临时存放
     portYIELD();
 }
+
+
+void HardFault_Handler(void)
+{
+    volatile uint32_t HFSR = SCB->HFSR;
+    volatile uint32_t CFSR = SCB->CFSR;
+    volatile uint32_t MMFAR = SCB->MMFAR;
+    volatile uint32_t BFAR = SCB->BFAR;
+    volatile uint32_t SHCSR = SCB->SHCSR;
+    volatile uint32_t MSP, PSP, LR, PC;
+
+    (void)HFSR;
+    (void)CFSR;
+    (void)MMFAR;
+    (void)BFAR;
+    (void)SHCSR;
+
+    __asm volatile ("mrs %0, msp" : "=r" (MSP));   // 当前主栈指针
+    __asm volatile ("mrs %0, psp" : "=r" (PSP));   // 任务栈指针
+    __asm volatile ("mov %0, lr"  : "=r" (LR));    // 异常返回码
+    __asm volatile ("mov %0, pc"  : "=r" (PC));    // 当前 PC
+
+    // 在这里打断点 或 while(1) 让调试器停住
+    for(;;);
+}
+
+
+void MemManage_Handler(void) __attribute__((alias("HardFault_Handler")));
+void BusFault_Handler(void) __attribute__((alias("HardFault_Handler")));
+void UsageFault_Handler(void) __attribute__((alias("HardFault_Handler")));
 

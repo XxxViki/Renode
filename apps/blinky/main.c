@@ -3,9 +3,15 @@
 #include "list.h"
 #include "port.h"
 
+#ifndef PERIPH_BASE
 #define PERIPH_BASE        0x40000000UL
+#endif
+#ifndef APB1PERIPH_BASE
 #define APB1PERIPH_BASE    (PERIPH_BASE + 0x00000)
+#endif
+#ifndef USART2_BASE
 #define USART2_BASE        (APB1PERIPH_BASE + 0x4400)
+#endif
 
 #define USART2_SR   (*(volatile uint32_t*)(USART2_BASE + 0x00))
 #define USART2_DR   (*(volatile uint32_t*)(USART2_BASE + 0x04))
@@ -90,6 +96,7 @@ void* Task2_Entry(void *pvParameters)
 int main(void)
 {
     uart2_init();
+    RtosInit();
 
     prvInitialiseTaskLists();
     Task1_Handle = xTaskCreateStatic(
@@ -102,7 +109,6 @@ int main(void)
         &Task1_TCB
     );
     
-
     Task2_Handle = xTaskCreateStatic(
         Task2_Entry,
         "Task2",
@@ -114,7 +120,6 @@ int main(void)
     );
     
 
-    pxCurrentTCB = &Task2_TCB;
     vTaskStartScheduler();
     
 
@@ -145,7 +150,7 @@ void vTaskStartScheduler(void)
     uint32_t *pxIdleTaskStackBuffer = NULL;
     uint32_t ulIdleTaskStackSize;
 
-    uxCriticalNesting = 0;
+    
 
     vApplicationGetIdleTaskMemory( &pxIdleTaskTCBBuffer,
                                     &pxIdleTaskStackBuffer,
@@ -160,6 +165,11 @@ void vTaskStartScheduler(void)
         pxIdleTaskStackBuffer,
         pxIdleTaskTCBBuffer
     );
+
+
+    xNextTaskUnblockTime = configMAX_DELAY;
+
+    xTickCount = (uint32_t) 0U;
 
     xPortStartScheduler();
 }
