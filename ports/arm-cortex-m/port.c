@@ -318,6 +318,7 @@ uint32_t xTaskIncrementTick(void)
             }
             else
             {
+                /* LIST-001: pxDelayedTaskList 头结点是尾哨兵，GET_OWNER 取出真实 TCB 而非哨兵本身。 */
                 pxTCB = (TCB_t *)listGET_OWNER_OF_HEAD_ENTRY(pxDelayedTaskList);
                 xItemValue = listGET_LIST_ITEM_VALUE(&(pxTCB->xStateListItem));
 
@@ -338,6 +339,7 @@ uint32_t xTaskIncrementTick(void)
         }
     }
     
+    /* LIST-003: listCURRENT_LIST_LENGTH 依赖 uxNumberOfItems O(1) 维护，无需遍历。 */
     if(listCURRENT_LIST_LENGTH(&(pxReadyTasksLists[pxCurrentTCB->uxPriority])) > 1)
     {
         xSwitchRequired =pdTRUE;
