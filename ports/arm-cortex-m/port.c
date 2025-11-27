@@ -58,6 +58,7 @@ void vPortSetupTimerInterrupt(void)
 {
     portNVIC_SYSTICK_LOAD_REG = (configSYSTICK_CLOCK_HZ / configTICK_RATE_HZ) - 1UL;
 
+    /* NVIC-002: SysTick ENABLE 必须是 bit0，否则 tick 不会运行。 */
     portNVIC_SYSTICK_CTRL_REG = (   portNVIC_SYSTICK_CLK_BIT    |
                                     portNVIC_SYSTICK_INT_BIT    |
                                     portNVIC_SYSTICK_ENABLE_BIT);
@@ -66,6 +67,7 @@ void vPortSetupTimerInterrupt(void)
 
 void xPortStartScheduler(void)
 {
+    /* NVIC-001: PendSV/SysTick 设成最低优先级，保证上下文切换不被更高优先级中断抢占。 */
     portNVIC_SYSPRI2_REG |= portNVIC_PENDSV_PRI;
     portNVIC_SYSPRI2_REG |= portNVIC_SYSTICK_PRI;
 
@@ -255,6 +257,7 @@ void vPortEnterCritical(void)
 
     if( uxCriticalNesting == 1)
     {
+        /* SCHD-001: 禁止在中断上下文进入临界区，防止 vTaskDelay 等链表操作断言。 */
         configASSERT((portNVIC_INT_CTRL_REG & portVECTACTIVE_MASK   ) == 0);
     }
 }
@@ -349,6 +352,7 @@ void xPortSysTickHandler(void)
 
     old_mask = taskENTER_CRITICAL_FROM_ISR();
 
+    /* CTX-001: 仅在需要时触发 PendSV，依靠 portYIELD 设置软中断完成切换。 */
     if(xTaskIncrementTick() != pdFALSE)
     {
         portYIELD();
