@@ -104,7 +104,7 @@ int main(void)
         "Task1",
         TASK1_STACK_SIZE,
         NULL,
-        1,
+        2,
         Task1_Stack,
         &Task1_TCB
     );

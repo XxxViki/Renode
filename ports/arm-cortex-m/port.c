@@ -290,11 +290,12 @@ static void prvResetNextTaskUnblockTime(void)
 
 
 
-void xTaskIncrementTick(void)
+uint32_t xTaskIncrementTick(void)
 {
     TCB_t *pxTCB = NULL;
     uint32_t xItemValue;
-    
+    uint32_t xSwitchRequired = pdFALSE;
+
     const uint32_t xConstTickCount = xTickCount + 1;
     xTickCount = xConstTickCount;
 
@@ -325,28 +326,21 @@ void xTaskIncrementTick(void)
 
                 (void)uxListRemove(&(pxTCB->xStateListItem));
                 prvAddTaskToReadyList(pxTCB);
-            }
-        }
-    }
-#if 0
-    for (uint32_t i = 0; i < configMAX_PRIORITIES; i++)
-    {
-        if(!listLIST_IS_EMPTY(&pxReadyTasksLists[i]))
-        {
-            /* code */
-            pxTCB = (TCB_t*) listGET_OWNER_OF_HEAD_ENTRY((&pxReadyTasksLists[i]));
-            if (pxTCB->xTicksToDelay > 0)
-            {
-                /* code */
-                pxTCB->xTicksToDelay--;
-                if(pxTCB->xTicksToDelay == 0)
+
+                if(pxTCB->uxPriority >= pxCurrentTCB->uxPriority)
                 {
-                    portRECORD_READY_PRIORITY(pxTCB->uxPriority,uxTopReadyPriority);
+                    xSwitchRequired = pdTRUE;
                 }
             }
         }
     }
-#endif
+    
+    if(listCURRENT_LIST_LENGTH(&(pxReadyTasksLists[pxCurrentTCB->uxPriority])) > 1)
+    {
+        xSwitchRequired =pdTRUE;
+    }
+
+    return xSwitchRequired;
 }
 
 void xPortSysTickHandler(void)
@@ -355,12 +349,14 @@ void xPortSysTickHandler(void)
 
     old_mask = taskENTER_CRITICAL_FROM_ISR();
 
-    xTaskIncrementTick();
+    if(xTaskIncrementTick() != pdFALSE)
+    {
+        portYIELD();
+    }
 
     taskEXIT_CRITICAL_FROM_ISR(old_mask);
 
-    //临时存放
-    portYIELD();
+    
 }
 
 
