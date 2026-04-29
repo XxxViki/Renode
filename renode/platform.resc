@@ -10,10 +10,18 @@ mach create "stm32f412"
 # ---------------------------------------------------------
 machine LoadPlatformDescription @platforms/cpus/stm32f4.repl
 
+# 注：SVD 已通过 .repl 平台文件加载 (STM32F40x)
+# 查看寄存器：Renode Monitor 中输入 sysbus.gpioa 等
+
+# ---------------------------------------------------------
+# Start GDB server (用于 VSCode) — 必须在加载 ELF 之前启动
+# ---------------------------------------------------------
+machine StartGdbServer 3333 true
+
 # ---------------------------------------------------------
 # Load ELF file
 # ---------------------------------------------------------
-sysbus LoadELF @/home/orangepi/object/renode_portable/firmware.elf
+sysbus LoadELF "D:/Xxx/Progect/Renode/RtosOfArm/build/firmware.elf"
 
 # ---------------------------------------------------------
 # Show UART2 for printf / logs
@@ -21,20 +29,14 @@ sysbus LoadELF @/home/orangepi/object/renode_portable/firmware.elf
 showAnalyzer sysbus.usart2
 
 # ---------------------------------------------------------
-# Start GDB server (用于 VSCode)
+# 注意：不调用 start，由 GDB 控制 CPU 启动
 # ---------------------------------------------------------
-machine StartGdbServer 3333 true
-
-# ---------------------------------------------------------
-# Start emulation
-# ---------------------------------------------------------
-start
 
 # ---------------------------------------------------------
 # Reset macro（VSCode restart 时调用）
 # ---------------------------------------------------------
 macro stm32f412.reset
 """
-    sysbus LoadELF @/home/orangepi/object/renode_portable/firmware.elf
+    sysbus LoadELF "D:/Xxx/Progect/Renode/RtosOfArm/build/firmware.elf"
     cpu Reset
 """

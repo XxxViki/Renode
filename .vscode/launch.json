@@ -2,36 +2,40 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug STM32F412 on Renode Remote",
+            "name": "Debug STM32F412 on Renode (cppdbg)",
             "type": "cppdbg",
             "request": "launch",
-
             "program": "${workspaceFolder}/build/firmware.elf",
             "cwd": "${workspaceFolder}",
-
-            "miDebuggerPath": "arm-none-eabi-gdb",
-            "miDebuggerServerAddress": "192.168.31.135:3333",
-
-            "preLaunchTask": "Run Renode Remote",
-
+            "miDebuggerPath": "C:\\ST\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin\\arm-none-eabi-gdb.exe",
+            "miDebuggerServerAddress": "localhost:3333",
             "stopAtEntry": true,
-
+            "preLaunchTask": "Start Renode",
+            "postDebugTask": "Stop Renode",
             "setupCommands": [
                 { "text": "set pagination off" },
                 { "text": "set confirm off" },
-                { "text": "set print pretty on" }
+                { "text": "set print pretty on" },
+                { "text": "set mem inaccessible-by-default off" }
             ],
-
-            /* On restart: pause, reload ELF, reset CPU (mimic your manual sequence) */
-            "postRemoteConnectCommands": [
-                { "text": "monitor machine Pause" },
-                { "text": "monitor sysbus LoadELF @/home/orangepi/object/renode_portable/firmware.elf" },
-                { "text": "monitor cpu Reset" }
-            ],
-
             "externalConsole": false,
-
+            "MIMode": "gdb",
             "targetArchitecture": "arm"
+        },
+        {
+            "name": "Debug STM32F412 on Renode (Cortex-Debug)",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "external",
+            "gdbTarget": "localhost:3333",
+            "executable": "${workspaceFolder}/build/firmware.elf",
+            "cwd": "${workspaceFolder}",
+            "armToolchainPath": "C:\\ST\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin",
+            "svdFile": "C:\\ST\\STM32CubeCLT_1.18.0\\STMicroelectronics_CMSIS_SVD\\STM32F412.svd",
+            "preLaunchTask": "Start Renode",
+            "postDebugTask": "Stop Renode",
+            "runToEntryPoint": "main",
+            "showDevDebugOutput": "raw"
         }
     ]
 }

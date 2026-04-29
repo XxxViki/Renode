@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
 
-# Toolchain
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchain-arm-none-eabi.cmake)
-
 project(MyRtosF412 C ASM)
 set(CMAKE_C_STANDARD 11)
 
@@ -22,9 +19,9 @@ add_compile_definitions(
 )
 
 # CMSIS Startup + System + Linker
-set(STARTUP_FILE   ${CMAKE_SOURCE_DIR}/drivers/Projects/STM32F412ZG-Nucleo/Templates/STM32CubeIDE/Example/Startup/startup_stm32f412zgjx.s)
-set(SYSTEM_FILE    ${CMAKE_SOURCE_DIR}/cmsis/Source/Templates/system_stm32f4xx.c)
-set(LINKER_SCRIPT  ${CMAKE_SOURCE_DIR}/drivers/Projects/STM32F412ZG-Nucleo/Templates/STM32CubeIDE/STM32F412ZGJX_FLASH.ld)
+set(STARTUP_FILE   ${CMAKE_SOURCE_DIR}/cmsis/cmsis-device-f4/Source/Templates/gcc/startup_stm32f412zx.s)
+set(SYSTEM_FILE    ${CMAKE_SOURCE_DIR}/cmsis/cmsis-device-f4/Source/Templates/system_stm32f4xx.c)
+set(LINKER_SCRIPT  ${CMAKE_SOURCE_DIR}/STM32F412ZGJX_FLASH.ld)
 
 # Compiler Flags
 add_compile_options(
@@ -68,6 +65,5 @@ target_include_directories(firmware.elf PRIVATE
     ${RTOS_CONFIG_DIR}
     ${PORT_DIR}
 
-    ${CMAKE_SOURCE_DIR}/drivers/Drivers/CMSIS/Core/Include  # core_cm4.h
-    ${CMAKE_SOURCE_DIR}/cmsis/Include                       # stm32f412xx.h
+    ${CMAKE_SOURCE_DIR}/cmsis/cmsis-device-f4/Include
 )

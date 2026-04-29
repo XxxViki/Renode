@@ -1,4 +1,49 @@
 {
+    "cmake.configureOnOpen": true,
+    "cmake.generator": "Ninja",
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.sourceDirectory": "${workspaceFolder}",
+    "cmake.configureArgs": [
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+        "-DCMAKE_TOOLCHAIN_FILE=${workspaceFolder}/cmake/toolchain-arm-none-eabi.cmake"
+    ],
+    "cmake.buildArgs": [],
+    "cmake.defaultVariants": {
+        "buildType": {
+            "default": "debug",
+            "choices": {
+                "debug": {
+                    "short": "Debug",
+                    "long": "Debug build",
+                    "buildType": "Debug"
+                },
+                "release": {
+                    "short": "Release",
+                    "long": "Release build",
+                    "buildType": "Release"
+                }
+            }
+        }
+    },
+    "cmake.debugConfig": {
+        "name": "Debug STM32F412 on Renode",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/build/firmware.elf",
+        "cwd": "${workspaceFolder}",
+        "miDebuggerPath": "C:\\ST\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin\\arm-none-eabi-gdb.exe",
+        "miDebuggerServerAddress": "localhost:3333",
+        "stopAtEntry": true,
+        "setupCommands": [
+            { "text": "set pagination off" },
+            { "text": "set confirm off" },
+            { "text": "set print pretty on" },
+            { "text": "file ${workspaceFolder}/build/firmware.elf" }
+        ],
+        "externalConsole": false,
+        "targetArchitecture": "arm"
+    },
     "files.associations": {
         "port.h": "c",
         "task.h": "c",
